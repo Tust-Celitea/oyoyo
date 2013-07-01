@@ -44,7 +44,7 @@ class AuthEntry(object):
         self.user = user
         self.command = command
 
-    @classmethod 
+    @classmethod
     def get(klass, id):
         return db.session.query(klass).get(int(id))
 
@@ -92,7 +92,7 @@ class Commands(CommandHandler):
         else:
             commands = AuthEntry.getAll()
         for command in commands:
-            helpers.msg(self.client, dest, "%s: %s" % 
+            helpers.msg(self.client, dest, "%s: %s" %
                 (command.user, command.command))
         helpers.msgOK(self.client, dest, sender)
 
@@ -102,7 +102,6 @@ class Auth(OwnerAuth):
         log.info('auth(%s, %s, %s, %s)' % (sender, dest, command, arg))
         if OwnerAuth.__call__(self, handler, command, sender, dest, *arg):
             return True
-            
+
         if not len(AuthEntry.getForUser(sender, command))):
             return False
-            

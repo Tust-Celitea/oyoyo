@@ -18,8 +18,7 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 
-engine = None 
+engine = None
 meta = MetaData()
 Session = sessionmaker(autoflush=True, transactional=True)
 session = None
-

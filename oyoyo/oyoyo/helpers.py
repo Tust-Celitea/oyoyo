@@ -52,7 +52,7 @@ def quit(cli, msg='gone'):
     cli._end = 1
 
 def user(cli, username, realname=None):
-    cli.send("USER", username, cli.host, cli.host, 
+    cli.send("USER", username, cli.host, cli.host,
         realname or username)
 
 _simple = (
@@ -82,6 +82,5 @@ def _addNumerics():
     m = sys.modules[__name__]
     for num, name in ircevents.numeric_events.iteritems():
         setattr(m, name, numericcmd(num, name))
-        
-_addNumerics()
 
+_addNumerics()

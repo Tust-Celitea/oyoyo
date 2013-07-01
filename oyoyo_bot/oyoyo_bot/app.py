@@ -64,12 +64,12 @@ def extendCommandClassWithEP(klass, ep, client):
 
 def extendCommandClass(working_set, klass, key, client):
     """ extend a class with objects from entrypoints """
-    for ep in working_set.iter_entry_points(key): 
+    for ep in working_set.iter_entry_points(key):
         extendCommandClassWithEP(klass, ep, client)
 
 
 def getPkgResourcesWorkingSet():
-    if config['plugins'].as_bool('load_all'): 
+    if config['plugins'].as_bool('load_all'):
         working_set = pkg_resources.working_set
     else:
         working_set = pkg_resources.WorkingSet([])
@@ -81,7 +81,7 @@ def getPkgResourcesWorkingSet():
         )
         log.info('distributions %s' % distributions)
         map(working_set.add, distributions)
-        if errors: 
+        if errors:
             log.info("Couldn't load %s" % errors)
     return working_set
 
@@ -91,11 +91,11 @@ class BotCommands(DefaultBotCommandHandler):
         DefaultBotCommandHandler.__init__(self, client)
 
         working_set = getPkgResourcesWorkingSet()
-        extendCommandClass(working_set, self, 'oyoyo_bot.commands', client)  
+        extendCommandClass(working_set, self, 'oyoyo_bot.commands', client)
 
         for command, fnc in config['commands'].iteritems():
             ep = pkg_resources.EntryPoint.parse("%s = %s" % (command, fnc))
-            if not ep.dist: 
+            if not ep.dist:
                 ep.dist = pkg_resources.get_distribution('oyoyo_bot')
             extendCommandClassWithEP(self, ep, client)
 
@@ -114,9 +114,9 @@ class BotCommands(DefaultBotCommandHandler):
         log.info("running command sender=%s, dest=%s, command=%s, arg=%s",
             sender, dest, command, arg)
 
-        if (hasattr(f, 'auth') and 
+        if (hasattr(f, 'auth') and
             not self.client.command_handler.auth(self, command, sender, dest, *arg)):
-                helpers.msg(self.client, dest, 
+                helpers.msg(self.client, dest,
                     "you do not have the required permissions")
                 return
 
@@ -134,7 +134,7 @@ class BotCommands(DefaultBotCommandHandler):
         log.info('told to quit by %s' % sender)
         app.stop()
 
-    @auth 
+    @auth
     def join(self, sender, dest, arg):
         log.info('told to join %s by %s' % (arg, sender))
         helpers.join(self.client, arg.strip())
@@ -160,18 +160,18 @@ def loadAuthPlugin(plugin):
 
 def loadListenerPlugins(working_set, key, client):
     listeners = []
-    for ep in working_set.iter_entry_points(key): 
+    for ep in working_set.iter_entry_points(key):
         listeners.append(ep.load()(client))
     return listeners
 
 
 class OyoyoBotCommandHandler(BotCommandHandler):
-        
+
     def __init__(self, client, command_handler, auth):
         BotCommandHandler.__init__(self, client, command_handler)
-        self.auth = auth 
+        self.auth = auth
         working_set = getPkgResourcesWorkingSet()
-        self.listeners = loadListenerPlugins(working_set, 
+        self.listeners = loadListenerPlugins(working_set,
             'oyoyo_bot.listeners', client)
 
     @protected
@@ -201,7 +201,7 @@ def make_config():
 
 # several options use entry point syntax to link to external
 # modules/functions/classes
-# entrypoint syntax is 
+# entrypoint syntax is
 #       some.module:some.attr [extra1,extra2]
 
 [database]
@@ -216,7 +216,7 @@ echo = False
 # one of DEBUG, INFO, WARN, ERROR
 level = DEBUG
 # filename to log to, set to an empty string to log to stdout
-filename = 
+filename =
 #filename = oyoyo.log
 # should be 'a' or 'w'
 filemode = a
@@ -250,7 +250,7 @@ realname = oyoyo
 
 # specific server connections
 #[server irc.freenode.net]
-#rooms = test bots 
+#rooms = test bots
 #identify = oyoyo_nick_serv_pass
 
 """)
@@ -266,12 +266,12 @@ realname = oyoyo
 
 def extendConfig(key):
     working_set = getPkgResourcesWorkingSet()
-    for ep in working_set.iter_entry_points(key): 
+    for ep in working_set.iter_entry_points(key):
         log.info('extending defaults with %s' % ep)
         obj = ep.load()
         plugin_defaults = ConfigObj(obj)
         config.merge(plugin_defaults)
-        
+
 
 def make_app():
     """ main entry point """
@@ -280,7 +280,7 @@ def make_app():
     import logging
     import sys
     from oyoyo_bot import db
-        
+
     global app
     global config
 
@@ -316,12 +316,12 @@ def make_app():
         identify = serverOrDefault(key, 'identify')
 
         def connect_cb(c):
-            if identify: 
+            if identify:
                 helpers.ns(c, "IDENTIFY", identify)
             for room in rooms:
                 helpers.join(c, "#"+room)
 
-        cli = IRCClient( 
+        cli = IRCClient(
             nick=serverOrDefault(key, 'nick'),
             realname=serverOrDefault(key, 'realname'),
             host=server,
@@ -343,25 +343,3 @@ def make_app():
 
     app.run()
     print "done."
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

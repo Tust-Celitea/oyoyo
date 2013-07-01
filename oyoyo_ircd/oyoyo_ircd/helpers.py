@@ -1,4 +1,3 @@
-
 def notice(user, msg):
     return [user, ":"+msg]
 
@@ -20,11 +19,3 @@ def _addNumerics():
         setattr(m, name, numericcmd(num))
 
 _addNumerics()
-
-
-
-
-
-
-
-

@@ -30,6 +30,3 @@ class OwnerAuth(AuthScheme):
 
     def __call__(self, handler, command, sender, dest, *arg):
         return self.owner == sender
-
-
-

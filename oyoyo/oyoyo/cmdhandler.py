@@ -47,7 +47,7 @@ class NoSuchCommandError(CommandError):
 class ProtectedCommandError(CommandError):
     def __str__(self):
         return 'Command "%s" is protected' % ".".join(self.cmd)
-        
+
 
 class CommandHandler(object):
     """ The most basic CommandHandler """
@@ -57,12 +57,12 @@ class CommandHandler(object):
 
     @protected
     def get(self, in_command_parts):
-        """ finds a command 
+        """ finds a command
         commands may be dotted. each command part is checked that it does
-        not start with and underscore and does not have an attribute 
+        not start with and underscore and does not have an attribute
         "protected". if either of these is true, ProtectedCommandError
         is raised.
-        its possible to pass both "command.sub.func" and 
+        its possible to pass both "command.sub.func" and
         ["command", "sub", "func"].
         """
         if isinstance(in_command_parts, (str, bytes)):
@@ -127,16 +127,16 @@ class DefaultCommandHandler(CommandHandler):
 
 
 class DefaultBotCommandHandler(CommandHandler):
-    """ default command handler for bots. methods/attributes are made 
+    """ default command handler for bots. methods/attributes are made
     available as commands """
 
     @protected
     def getVisibleCommands(self, obj=None):
         test = (lambda x: isinstance(x, CommandHandler) or \
                 inspect.ismethod(x) or inspect.isfunction(x))
-        members = inspect.getmembers(obj or self, test)          
-        return [m for m, _ in members 
-            if (not m.startswith('_') and 
+        members = inspect.getmembers(obj or self, test)
+        return [m for m, _ in members
+            if (not m.startswith('_') and
                 not hasattr(getattr(obj, m), 'protected'))]
 
     def help(self, sender, dest, arg=None):
@@ -145,7 +145,7 @@ class DefaultBotCommandHandler(CommandHandler):
         if not arg:
             commands = self.getVisibleCommands()
             commands.sort()
-            helpers.msg(self.client, dest, 
+            helpers.msg(self.client, dest,
                 "available commands: %s" % " ".join(commands))
         else:
             try:
@@ -153,7 +153,7 @@ class DefaultBotCommandHandler(CommandHandler):
             except CommandError, e:
                 helpers.msg(self.client, dest, str(e))
                 return
-                
+
             doc = f.__doc__.strip() if f.__doc__ else "No help available"
 
             if not inspect.ismethod(f):
@@ -161,7 +161,7 @@ class DefaultBotCommandHandler(CommandHandler):
                 if subcommands:
                     doc += " [sub commands: %s]" % " ".join(subcommands)
 
-            helpers.msg(self.client, dest, "%s: %s" % (arg, doc)) 
+            helpers.msg(self.client, dest, "%s: %s" % (arg, doc))
 
 
 class BotCommandHandler(DefaultCommandHandler):
@@ -179,14 +179,14 @@ class BotCommandHandler(DefaultCommandHandler):
         """ tests a command to see if its a command for the bot, returns True
         and calls self.processBotCommand(cmd, sender) if its is.
         """
-    
+
         logging.debug("tryBotCommand('%s' '%s' '%s')" % (prefix, dest, msg))
 
         if dest == self.client.nick:
             dest = parse_nick(prefix)[0]
         elif msg.startswith(self.client.nick):
             msg = msg[len(self.client.nick)+1:]
-        else: 
+        else:
             return False
 
         msg = msg.strip()
@@ -200,13 +200,3 @@ class BotCommandHandler(DefaultCommandHandler):
         except CommandError, e:
             helpers.msg(self.client, dest, str(e))
         return True
- 
-    
-
-
-
-
-
-
-
-

@@ -206,4 +206,3 @@ protocol_events = [
 ]
 
 all_events = generated_events + protocol_events + numeric_events.values()
-

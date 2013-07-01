@@ -45,22 +45,22 @@ class IRCClient:
     """
 
     def __init__(self, cmd_handler, **kwargs):
-        """ the first argument should be an object with attributes/methods named 
-        as the irc commands. You may subclass from one of the classes in 
-        oyoyo.cmdhandler for convenience but it is not required. The 
-        methods should have arguments (prefix, args). prefix is 
+        """ the first argument should be an object with attributes/methods named
+        as the irc commands. You may subclass from one of the classes in
+        oyoyo.cmdhandler for convenience but it is not required. The
+        methods should have arguments (prefix, args). prefix is
         normally the sender of the command. args is a list of arguments.
-        Its recommened you subclass oyoyo.cmdhandler.DefaultCommandHandler, 
-        this class provides defaults for callbacks that are required for 
+        Its recommened you subclass oyoyo.cmdhandler.DefaultCommandHandler,
+        this class provides defaults for callbacks that are required for
         normal IRC operation.
 
         all other arguments should be keyword arguments. The most commonly
         used will be nick, host and port. You can also specify an "on connect"
         callback. ( check the source for others )
 
-        Warning: By default this class will not block on socket operations, this 
+        Warning: By default this class will not block on socket operations, this
         means if you use a plain while loop your app will consume 100% cpu.
-        To enable blocking pass blocking=True. 
+        To enable blocking pass blocking=True.
 
         >>> class My_Handler(DefaultCommandHandler):
         ...     def privmsg(self, prefix, command, args):
@@ -95,8 +95,8 @@ class IRCClient:
 
     def send(self, *args, **kwargs):
         """ send a message to the connected server. all arguments are joined
-        with a space for convenience, for example the following are identical 
-        
+        with a space for convenience, for example the following are identical
+
         >>> cli.send("JOIN %s" % some_room)
         >>> cli.send("JOIN", some_room)
 
@@ -105,7 +105,7 @@ class IRCClient:
           the 'encoding' keyword argument (default 'utf8').
         In python 3, all args must be of type str or bytes, *BUT* if they are
           str they will be converted to bytes with the encoding specified by the
-          'encoding' keyword argument (default 'utf8'). 
+          'encoding' keyword argument (default 'utf8').
         """
         # Convert all args to bytes if not already
         encoding = kwargs.get('encoding') or 'utf8'
@@ -126,8 +126,8 @@ class IRCClient:
         self.socket.send(msg + bytes("\r\n", "ascii"))
 
     def connect(self):
-        """ initiates the connection to the server set in self.host:self.port 
-        and returns a generator object. 
+        """ initiates the connection to the server set in self.host:self.port
+        and returns a generator object.
 
         >>> cli = IRCClient(my_handler, host="irc.freenode.net", port=6667)
         >>> g = cli.connect()
@@ -140,13 +140,13 @@ class IRCClient:
             self.socket.connect(("%s" % self.host, self.port))
             if not self.blocking:
                 self.socket.setblocking(0)
-            
+
             helpers.nick(self, self.nick)
             helpers.user(self, self.nick, self.real_name)
 
             if self.connect_cb:
                 self.connect_cb(self)
-            
+
             buffer = bytes()
             while not self._end:
                 try:
@@ -155,7 +155,7 @@ class IRCClient:
                     try:  # a little dance of compatibility to get the errno
                         errno = e.errno
                     except AttributeError:
-                        errno = e[0]                        
+                        errno = e[0]
                     if not self.blocking and errno == 11:
                         pass
                     else:
@@ -170,14 +170,14 @@ class IRCClient:
                             self.command_handler.run(command, prefix, *args)
                         except CommandError:
                             # error will of already been loggingged by the handler
-                            pass 
+                            pass
 
                 yield True
         finally:
-            if self.socket: 
+            if self.socket:
                 logging.info('closing socket')
                 self.socket.close()
-                    
+
 
 class IRCApp:
     """ This class manages several IRCClient instances without the use of threads.
@@ -199,7 +199,7 @@ class IRCApp:
     def addClient(self, client, autoreconnect=False):
         """ add a client object to the application. setting autoreconnect
         to true will mean the application will attempt to reconnect the client
-        after every disconnect. you can also set autoreconnect to a number 
+        after every disconnect. you can also set autoreconnect to a number
         to specify how many reconnects should happen.
 
         warning: if you add a client that has blocking set to true,
@@ -226,25 +226,25 @@ class IRCApp:
             for client, clientdesc in self._clients.iteritems():
                 if clientdesc.con is None:
                     clientdesc.con = client.connect()
-                
+
                 try:
                     clientdesc.con.next()
                 except Exception, e:
                     logging.error('client error %s' % e)
                     logging.error(traceback.format_exc())
                     if clientdesc.autoreconnect:
-                        clientdesc.con = None 
+                        clientdesc.con = None
                         if isinstance(clientdesc.autoreconnect, (int, float)):
                             clientdesc.autoreconnect -= 1
                         found_one_alive = True
                     else:
-                        clientdesc.con = False 
+                        clientdesc.con = False
                 else:
                     found_one_alive = True
-                
+
             if not found_one_alive:
                 logging.info('nothing left alive... quiting')
-                self.stop() 
+                self.stop()
 
             now = time.time()
             timers = self._timers[:]
@@ -253,7 +253,7 @@ class IRCApp:
                 if now > target_time:
                     logging.info('calling timer cb %s' % cb)
                     cb()
-                else:   
+                else:
                     self._timers.append((target_time, cb))
 
             time.sleep(self.sleep_time)
@@ -261,7 +261,3 @@ class IRCApp:
     def stop(self):
         """ stop the application """
         self.running = False
-
-
-
-

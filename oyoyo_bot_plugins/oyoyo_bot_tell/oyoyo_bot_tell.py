@@ -47,7 +47,7 @@ class TellMessage(object):
         self.room = room
         self.msg = msg
 
-    @classmethod 
+    @classmethod
     def get(klass, id):
         log.debug('get %s' % id)
         return db.session.query(klass).get(int(id))
@@ -67,12 +67,12 @@ class TellMessage(object):
     def getCountForUser(klass, name):
         return db.session.query(klass).filter_by(to_user=name).count()
 
-    
+
 mapper(TellMessage, TellMessagesTable)
 
 defaults = StringIO("""
 [tell]
-max_msgs = 3   
+max_msgs = 3
 """)
 
 
@@ -86,7 +86,7 @@ class Commands(CommandHandler):
         if TellMessage.getCountForUser(target) >= int(config['tell']['max_msgs']):
             helpers.msg(self.client, dest, "%s has too many messages already" % target)
             return
-    
+
         msg = TellMessage(sender, target, dest, message)
         db.session.save(msg)
         db.session.commit()
@@ -105,15 +105,3 @@ class Listener(CommandHandler):
                 (msg.to_user, msg.from_user, msg.msg))
             db.session.delete(msg)
         db.session.commit()
-           
-
-
-
-
-
-
-
-
-
-
-

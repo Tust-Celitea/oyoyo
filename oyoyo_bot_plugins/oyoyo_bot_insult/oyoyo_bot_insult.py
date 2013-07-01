@@ -24,7 +24,7 @@ class Insult(object):
     def __str__(self):
         return self.insult
 
-    @classmethod 
+    @classmethod
     def get(klass, id):
         log.debug('get %s' % id)
         return db.session.query(klass).get(int(id))
@@ -39,7 +39,7 @@ class Insult(object):
     def getAll(klass):
         return db.session.query(klass).all()
 
-    
+
 mapper(Insult, InsultsTable)
 
 
@@ -48,8 +48,8 @@ class OyoyoInsult(CommandHandler):
     def __call__(self, sender, dest, arg=None):
         t = (arg or parse_name(sender)[0]).split(' ', 1)
         target, id = t[0], t[1:]
-        
-        helpers.msg(self.client, dest, "%s %s" % (target, 
+
+        helpers.msg(self.client, dest, "%s %s" % (target,
             Insult.get(id[0]) if id else Insult.getRandom()) )
 
     @auth
@@ -70,11 +70,7 @@ class OyoyoInsult(CommandHandler):
     @auth
     def delete(self, sender, dest, arg):
         """ delete an insult, arg is insult id """
-        insult = Insult.get(int(arg))   
+        insult = Insult.get(int(arg))
         db.session.delete(insult)
         db.session.commit()
         helpers.msgOK(self.client, dest, parse_name(sender)[0])
-        
-        
-        
-
