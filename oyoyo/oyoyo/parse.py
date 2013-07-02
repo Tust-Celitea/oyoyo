@@ -95,7 +95,7 @@ def parse_nick(name):
     try:
         nick, rest = name.split('!')
     except ValueError:
-        return (name, None, None, None)
+        return (nick, None, None, None)
     try:
         mode, rest = rest.split('=')
     except ValueError:
@@ -103,6 +103,6 @@ def parse_nick(name):
     try:
         user, host = rest.split('@')
     except ValueError:
-        return (name, mode, rest, None)
+        return (nick, mode, rest, None)
 
-    return (name, mode, user, host)
+    return (nick, mode, user, host)
