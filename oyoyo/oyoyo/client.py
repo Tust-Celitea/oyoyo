@@ -164,7 +164,7 @@ class IRCClient:
                     else:
                         raise e
                 else:
-                    data = buffer.split(bytes("\n", "ascii"))
+                    data = buffer.split(bytes("\r\n", "ascii"))
                     buffer = data.pop()
 
                     for el in data:
