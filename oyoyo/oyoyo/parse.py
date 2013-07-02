@@ -26,6 +26,16 @@ if sys.version_info < (3,):
         def __new__(self, b='', encoding='utf8'):
             return str(b)
 
+    def decode(b):
+        return b
+    def encode(b):
+        return b
+else:
+    def decode(b, encoding='utf8'):
+        return b.decode(encoding)
+    def encode(b, encoding='utf8'):
+        return b.encode(encoding)
+
 
 def parse_raw_irc_command(element):
     """
@@ -55,6 +65,7 @@ def parse_raw_irc_command(element):
         prefix = None
         command = parts[0]
         args = parts[1:]
+    command = decode(command, 'ascii')
 
     if command.isdigit():
         try:
@@ -62,6 +73,7 @@ def parse_raw_irc_command(element):
         except KeyError:
             logging.warn('unknown numeric event %s' % command)
     command = command.lower()
+    command = encode(command, 'ascii')
 
     if args[0].startswith(bytes(':', 'ascii')):
         args = [bytes(" ", "ascii").join(args)[1:]]
