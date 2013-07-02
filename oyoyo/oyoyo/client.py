@@ -34,6 +34,16 @@ if sys.version_info < (3,):
         def __new__(self, b='', encoding='utf8'):
             return str(b)
 
+    def decode(b):
+        return b
+    def encode(b):
+        return b
+else:
+    def decode(b, encoding='utf8'):
+        return b.decode(encoding)
+    def encode(b, encoding='utf8'):
+        return b.encode(encoding)
+
 
 class IRCClientError(Exception):
     pass
@@ -123,7 +133,7 @@ class IRCClient:
                                      % repr([(type(arg), arg) for arg in args]))
 
         msg = bytes(" ", "ascii").join(bargs)
-        logging.info('---> send "%s"' % msg)
+        logging.info('---> send "%s"' % decode(msg))
         self.socket.send(msg + bytes("\r\n", "ascii"))
 
     def connect(self):
