@@ -71,7 +71,7 @@ def parse_raw_irc_command(element):
         try:
             command = numeric_events[command]
         except KeyError:
-            logging.warn('unknown numeric event %s' % command)
+            pass
     command = command.lower()
     command = encode(command, 'ascii')
 

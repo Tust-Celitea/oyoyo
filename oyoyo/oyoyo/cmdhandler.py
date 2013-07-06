@@ -115,7 +115,10 @@ class CommandHandler(object):
         try:
             f = self.get(command)
         except NoSuchCommandError:
-            self.__unhandled__(command, *args)
+            if decode(command, 'ascii').isdecimal():
+                self.__numeric__(command, *args)
+            else:
+                self.__unhandled__(command, *args)
             return
 
         logging.debug('f %s' % f)
@@ -126,6 +129,10 @@ class CommandHandler(object):
             logging.error('command raised %s' % e)
             logging.error(traceback.format_exc())
             raise CommandError(command)
+
+    @protected
+    def __numeric__(self, cmd, *args):
+        logging.warn('unknown numeric event %s' % cmd)
 
     @protected
     def __unhandled__(self, cmd, *args):
