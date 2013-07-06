@@ -69,7 +69,7 @@ numeric_events = {
     "265": "n_local",
     "266": "n_global",
     "300": "none",
-    "301": "away",
+    "301": "rpl_away", # include 'rpl_' so away command can exist
     "302": "userhost",
     "303": "ison",
     "305": "unaway",

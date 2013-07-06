@@ -18,6 +18,14 @@
 """ contains helper functions for common irc commands """
 
 import random
+import sys
+
+# Python < 3 compatibility
+if sys.version_info < (3,):
+    class bytes(object):
+        def __new__(self, b='', encoding='utf8'):
+            return str(b)
+
 
 def msg(cli, user, msg):
     for line in msg.split('\n'):
@@ -38,6 +46,19 @@ msgOK = _makeMsgRandomFunc(['ok', 'done'])
 msgNo = _makeMsgRandomFunc(['no', 'no-way'])
 
 
+def ctcp(cli, user, cmd, *args):
+    if args:
+        cli.send("PRIVMSG", user, ":\x01%s %s\x01" % (cmd.upper(), " ".join(args)))
+    else:
+        cli.send("PRIVMSG", user, ":\x01%s\x01" % (cmd.upper()))
+
+def ctcp_reply(cli, user, cmd, *args):
+    if args:
+        notice(cli, user, ":\x01%s %s\x01" % (cmd.upper(), " ".join(args)))
+    else:
+        notice(cli, user, ":\x01%s\x01" % (cmd.upper()))
+
+
 def ns(cli, *args):
     msg(cli, "NickServ", " ".join(args))
 
@@ -55,11 +76,63 @@ def user(cli, username, realname=None):
     cli.send("USER", username, cli.host, cli.host,
         realname or username)
 
+def names(cli, *channels):
+    if not channels:
+        cli.send("NAMES")
+        return
+
+    msglist = ""
+    for chan in channels:
+        if len(msglist) + len(chan) > 490:
+            cli.send("NAMES %s" % (msglist))
+            msglist = ""
+        msglist += chan + ","
+    if msglist:
+        cli.send("NAMES %s" % (msglist))
+
+def kick(cli, nick, channel, reason=""):
+    if reason:
+        cli.send("KICK %s %s %s" % (channel, nick, reason))
+    else:
+        cli.send("KICK %s %s" % (channel, nick))
+
+
+def topic(cli, channel, topic=None):
+    if topic is None:
+        cli.send("TOPIC %s" % (channel))
+    else:
+        cli.send("TOPIC %s :%s" % (channel, topic))
+
+
+def whois(cli, nickmask, server=None):
+    if not isinstance(nickmask, str):
+        nickmask = ",".join(nickmask)
+    if server is None:
+        cli.send("WHOIS %s" % (nickmask))
+    else:
+        cli.send("WHOIS %s %s" % (server, nickmask))
+
+def whowas(cli, nick, server=None, count=1):
+    if server is None:
+        cli.send("WHOWAS %s %i"  % (nick, count))
+    else:
+        cli.send("WHOWAS %s %i %s" % (nick, count, server))
+
+
+def away(cli, msg=None):
+    if msg is None:
+        cli.send("AWAY")
+    else:
+        cli.send("AWAY :%s" % (msg))
+
+
 _simple = (
     'join',
     'part',
     'nick',
     'notice',
+    'invite',
+    'mode',
 )
 def _addsimple():
     import sys
