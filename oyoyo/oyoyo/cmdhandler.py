@@ -112,14 +112,15 @@ class CommandHandler(object):
                 newargs.append(arg)
         args = tuple(newargs)
 
-        try:
-            f = self.get(command)
-        except NoSuchCommandError:
-            if decode(command, 'ascii').isdecimal():
-                self.__numeric__(command, *args)
-            else:
-                self.__unhandled__(command, *args)
+        if decode(command, 'ascii').isdecimal():
+            self.__numeric__(decode(command), *args)
             return
+        else:
+            try:
+                f = self.get(command)
+            except NoSuchCommandError:
+                self.__unhandled__(decode(command), *args)
+                return
 
         logging.debug('f %s' % f)
 
