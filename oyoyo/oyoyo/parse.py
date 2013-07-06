@@ -83,6 +83,13 @@ def parse_raw_irc_command(element):
                 args = args[:idx] + [bytes(" ", 'ascii').join(args[idx:])[1:]]
                 break
 
+    if args[-1].startswith(bytes('\x01', 'ascii')) and args[-1].endswith(bytes('\x01', 'ascii')):
+        args[-1] = args[-1][1:-1]
+        if command == bytes('privmsg', 'ascii'):
+            command = bytes('ctcp', 'ascii')
+        elif command == bytes('notice', 'ascii'):
+            command = bytes('ctcp_reply', 'ascii')
+
     return (prefix, command, args)
 
 
